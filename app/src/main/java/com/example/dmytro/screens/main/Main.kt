@@ -3,10 +3,9 @@ package com.example.dmytro.screens.main
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,14 +43,26 @@ fun Main() {
 
     val visibility = remember(currentDestination) {
         when {
-            currentDestination?.hasRoute<MainRoutes.Both>() == true -> BarVisibility(hideTop = true, hideBottom = true)
-            currentDestination?.hasRoute<MainRoutes.Top>() == true -> BarVisibility(hideTop = true, hideBottom = false)
-            currentDestination?.hasRoute<MainRoutes.Bottom>() == true -> BarVisibility(hideTop = false, hideBottom = true)
+            currentDestination?.hasRoute<MainRoutes.Both>() == true -> BarVisibility(
+                hideTop = true,
+                hideBottom = true
+            )
+
+            currentDestination?.hasRoute<MainRoutes.Top>() == true -> BarVisibility(
+                hideTop = true,
+                hideBottom = false
+            )
+
+            currentDestination?.hasRoute<MainRoutes.Bottom>() == true -> BarVisibility(
+                hideTop = false,
+                hideBottom = true
+            )
+
             else -> BarVisibility(hideTop = false, hideBottom = false)
         }
     }
 
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
     var topBarHeight by remember { mutableFloatStateOf(0f) }
     var bottomBarHeight by remember { mutableFloatStateOf(0f) }
     val density = LocalDensity.current
@@ -82,7 +93,8 @@ fun Main() {
                     }
                     .offset {
                         // Only offset the Y position if hideTop is enabled
-                        val y = if (visibility.hideTop) scrollBehavior.state.heightOffset.toInt() else 0
+                        val y =
+                            if (visibility.hideTop) scrollBehavior.state.heightOffset.toInt() else 0
                         IntOffset(0, y)
                     }
             )
@@ -109,8 +121,11 @@ fun Main() {
         val fraction = if (limit < 0f) currentOffset / limit else 0f
 
         val dynamicTopPadding = with(density) {
-            val offset = if (visibility.hideTop) currentOffset else 0f
-            (topBarHeight + offset).toDp()
+            val remaining = if (visibility.hideTop) {
+                // If hideTop is false, the offset represents the bottom bar's progress
+                topBarHeight * (1f - fraction)
+            } else topBarHeight
+            remaining.toDp()
         }
 
         val dynamicBottomPadding = with(density) {

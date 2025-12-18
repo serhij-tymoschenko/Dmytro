@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.dmytro.data.models.CatQuote
 import com.example.dmytro.data.models.catQuotes
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -15,8 +16,14 @@ fun Quotes() {
         modifier = Modifier
             .fillMaxSize()
     ) {
+        item {
+            Quote(CatQuote("The beginning!"))
+        }
         items(catQuotes) { catQuote ->
             Quote(catQuote)
+        }
+        item {
+            Quote(CatQuote("The end!"))
         }
     }
 }
